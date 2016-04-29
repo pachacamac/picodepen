@@ -17,9 +17,9 @@ textarea { color:#eee; background:#111; font-family:monospace; font-size:11pt; l
 <textarea id="jsBox" placeholder="JS"></textarea>
 <button id="shareBtn" type="button">share</button>
 <script>
-function renderPreview(type){
+function renderPreview(t){
   var doc = "<!DOCTYPE html>\n<html>\n<head>\n<meta charset='utf-8' />\n<style>\n"+cssBox.value+"\n</style>\n</head>\n<body>\n"+htmlBox.value+"\n<script>\n"+jsBox.value+"\n<\/script>\n<\/body>\n<\/html>";
-  type == 'f' ? document.body.innerHTML = doc : previewBox.srcdoc = doc;
+  t == 'f' ? document.body.innerHTML = doc : previewBox.srcdoc = doc;
 }
 function loadData(){
   if(location.hash.length>1){
@@ -31,8 +31,8 @@ function loadData(){
     renderPreview(type);
   }
 }
-function showLink(type){
-  prompt('Your shareable link:', location.protocol+'//'+location.host+location.pathname+'#'+(type||'e')+':'+window.btoa(JSON.stringify({html: htmlBox.value, css: cssBox.value, js: jsBox.value})));
+function showLink(t){
+  prompt('Your shareable link:', location.protocol+'//'+location.host+location.pathname+'#'+(t||'e')+':'+window.btoa(JSON.stringify({html: htmlBox.value, css: cssBox.value, js: jsBox.value})));
 }
 shareBtn.onclick = showLink;
 document.body.oninput = renderPreview;
