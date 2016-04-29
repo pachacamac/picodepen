@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>picodepen</title>
+<style>
+body,textarea,iframe{ margin:0; box-sizing:border-box; }
+textarea,iframe { width:100%; height:50vh; float:left; }
+textarea { color:#eee; background:#111; font-family:monospace; font-size:11pt; line-height:1.4; width:33.33%; }
+#shareBtn { position:absolute; bottom:0; left:0; }
+</style>
+</head>
+<body>
+<iframe id="previewBox"></iframe>
+<textarea id="htmlBox" placeholder="HTML"></textarea>
+<textarea id="cssBox" placeholder="CSS"></textarea>
+<textarea id="jsBox" placeholder="JS"></textarea>
+<button id="shareBtn" type="button">share</button>
+<script>
+function renderPreview(type){
+  var doc = "<!DOCTYPE html>\n<html>\n<head>\n<meta charset='utf-8' />\n<style>\n"+cssBox.value+"\n</style>\n</head>\n<body>\n"+htmlBox.value+"\n<script>\n"+jsBox.value+"\n<\/script>\n<\/body>\n<\/html>";
+  type == 'f' ? document.body.innerHTML = doc : previewBox.srcdoc = doc;
+}
+function loadData(){
+  if(location.hash.length>1){
+    var data = location.hash.substr(1).split(':'), type;
+    type = data[0], data = JSON.parse(window.atob(data[1]));
+    htmlBox.value = data.html;
+    cssBox.value = data.css;
+    jsBox.value = data.js;
+    renderPreview(type);
+  }
+}
+function showLink(type){
+  prompt('Your shareable link:', location.protocol+'//'+location.host+location.pathname+'#'+(type||'e')+':'+window.btoa(JSON.stringify({html: htmlBox.value, css: cssBox.value, js: jsBox.value})));
+}
+shareBtn.onclick = showLink;
+document.body.oninput = renderPreview;
+loadData();
+</script>
+</body>
+</html>
+
+
