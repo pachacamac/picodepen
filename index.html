@@ -24,7 +24,7 @@ function renderPreview(type){
 function loadData(){
   if(location.hash.length>1){
     var data = location.hash.substr(1).split(':'), type;
-    type = data[0], data = JSON.parse(window.atob(data[1]));
+    type = data[0], data = JSON.parse(window.atob(decodeURIComponent(data[1])));
     htmlBox.value = data.html;
     cssBox.value = data.css;
     jsBox.value = data.js;
@@ -32,7 +32,7 @@ function loadData(){
   }
 }
 function showLink(type){
-  prompt('Your shareable link:', location.protocol+'//'+location.host+location.pathname+'#'+(type||'e')+':'+window.btoa(JSON.stringify({html: htmlBox.value, css: cssBox.value, js: jsBox.value})));
+  prompt('Your shareable link:', location.protocol+'//'+location.host+location.pathname+'#'+(type||'e')+':'+encodeURIComponent(window.btoa(JSON.stringify({html: htmlBox.value, css: cssBox.value, js: jsBox.value}))));
 }
 shareBtn.onclick = function(){showLink('e')};
 document.body.oninput = function(){renderPreview('e')};
