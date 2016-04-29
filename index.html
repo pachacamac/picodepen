@@ -21,7 +21,7 @@ function renderPreview(){
 }
 document.body.oninput = function(){
   renderPreview();
-  location.hash = 'e:'+encodeURIComponent(window.btoa(JSON.stringify({html: htmlBox.value, css: cssBox.value, js: jsBox.value})));
+  location.hash = encodeURIComponent(window.btoa(JSON.stringify({html: htmlBox.value, css: cssBox.value, js: jsBox.value})));
 };
 if(location.hash.length>1){
   var data = JSON.parse(window.atob(decodeURIComponent(location.hash.substr(1))));
