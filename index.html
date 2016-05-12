@@ -1,6 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
 <meta charset="utf-8" />
 <title>picodepen</title>
 <style>
@@ -12,27 +9,55 @@ textarea { color:#eee; background:#111; font-family:monospace; font-size:11pt; l
 </head>
 <body>
 <a href="https://github.com/pachacamac/picodepen"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
-<iframe id="previewBox"></iframe>
-<textarea id="htmlBox" placeholder="HTML"></textarea>
-<textarea id="cssBox" placeholder="CSS"></textarea>
-<textarea id="jsBox" placeholder="JS"></textarea>
+<iframe id="_view"></iframe>
+<textarea id="_html" placeholder="HTML"></textarea>
+<textarea id="_css" placeholder="CSS"></textarea>
+<textarea id="_js" placeholder="JS"></textarea>
 <script>
-function renderPreview(){
-  previewBox.srcdoc = "<!DOCTYPE html>\n<html>\n<head>\n<meta charset='utf-8' />\n<style>\n"+cssBox.value+"\n</style>\n</head>\n<body>\n"+htmlBox.value+"\n<script>\n"+jsBox.value+"\n<\/script>\n<\/body>\n<\/html>";
-}
-document.body.oninput = function(){
-  renderPreview();
-  location.hash = encodeURIComponent(window.btoa(JSON.stringify({html: htmlBox.value, css: cssBox.value, js: jsBox.value})));
-};
+window.node_modules={}
 if(location.hash.length>1){
-  var data = JSON.parse(window.atob(decodeURIComponent(location.hash.substr(1))));
-  htmlBox.value = data.html;
-  cssBox.value = data.css;
-  jsBox.value = data.js;
+  var data=JSON.parse(window.atob(decodeURIComponent(location.hash.substr(1))))
+  _html.value=data.html
+  _css.value=data.css
+  _js.value=data.js
 }
-renderPreview();
+process()
+document.body.oninput=process
+function process(){
+  var go=function(){render(html,css,js,node_modules)},loading=0
+  var js=_js.value,html=_html.value,css=_css.value
+  cache(html,css,js)
+  var regex=/require\([\'\"]{1}(\S+?)[\'\"]\)/g
+  for(var m,deps=[];m=regex.exec(js);deps.push(m)){}
+  deps=deps.map(function(m){js=js.replace(m[0],m[1]);return m[1]})
+  deps.forEach(function(module){
+    if (!window.node_modules[module]) {
+      loading++
+      fetchModule(module,function(status,code){
+        window.node_modules[module]=status===200?code:null
+        if (!--loading) go()
+      })
+    }
+  })
+  if (loading) render('<p id="o">...please wait...</p>','._ {display:none;}','setInterval(function(){o.classList.toggle("_")},500)',{})
+  else go()
+}
+function cache(html,css,js){
+  location.hash=encodeURIComponent(window.btoa(JSON.stringify({html:html,css:css,js:js})))
+}
+function fetchModule(name,cb){
+  var wzrdin='https://wzrd.in/standalone/'
+  var xhr=new XMLHttpRequest()
+  xhr.open('GET',wzrdin+name)
+  xhr.onload=function(){cb(xhr.status,this.response)}
+  xhr.send()
+}
+function render(html,css,js,modules){
+  _view.srcdoc="<style>"+css+"<\/style><\/head>"+
+  "<body>"+html+"<script>"+browserify(modules)+"<\/script><script>"+js+"<\/script><\/body>"
+}
+function browserify(modules){
+  return Object.keys(modules).map(function(m){return modules[m]}).join('\n')
+}
 </script>
 </body>
-</html>
-
-
